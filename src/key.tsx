@@ -52,7 +52,7 @@ export function Key({ keycap, mode, alignment, onKeyPress }: KeyProps) {
   return (
     <div
       onPointerDown={onKeyPress}
-      className={`keycap ${keycap.isFunctionKey ? "function-key" : ""}`}
+      className={`keycap ${keycap.isFunctionKey ? "function-key" : "character-key"}`}
       data-keyname={keycap.currentName(mode)}
     >
       {fragment}

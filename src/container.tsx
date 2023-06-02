@@ -1,26 +1,35 @@
-import React, { useEffect, useState } from "react";
-import { StandardKeyboard } from "./standard";
+import React, { useEffect, useRef, useState } from "react";
+import { CSSTransition } from 'react-transition-group'
 import { DecimalKeyboard } from "./decimal";
+import { StandardKeyboard } from "./standard";
 
 enum State {
   None, Standard, Decimal
 }
 
+function isFocusable(element: any) {
+  return element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement
+}
+
+function onKeyboard(element: any) {
+  return !!(element as HTMLElement).closest('#keyboard')
+}
+
 export function OnscreenKeyboardContainer() {
   const [keyboardState, setKeyboardState] = useState(State.None)
+  const standardKeyboardRef = useRef<HTMLDivElement>(null)
+  const decimalKeyboardRef = useRef<HTMLDivElement>(null)
 
   function focusin(event: FocusEvent) {
-    if ((event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) && !event.target.closest('#keyboard')) {
+    if (isFocusable(event.target) && !onKeyboard(event.target)) {
       setKeyboardState(State.Standard)
     }
   }
 
   function focusout(event: FocusEvent) {
-    // if (event.target instanceof HTMLElement && !event.target.closest('#keyboard')) {
-    //   setKeyboardState(State.None)
-    // }
-
-    // console.log('blurred:', event.target)
+    if (!onKeyboard(event.target) && !isFocusable(event.relatedTarget)) {
+      setKeyboardState(State.None)
+    }
   }
 
   useEffect(() => {
@@ -33,12 +42,19 @@ export function OnscreenKeyboardContainer() {
     }
   }, [])
 
-  switch (keyboardState) {
-    case State.Standard:
-      return <StandardKeyboard />
-    case State.Decimal:
-      return <DecimalKeyboard />
-    default:
-      return null
-  }
+  return <>
+    <CSSTransition nodeRef={standardKeyboardRef} in={keyboardState === State.Standard} timeout={500} classNames="standard-keyboard" unmountOnExit onExit={() => {
+      console.log('hey')
+      const keyboard = standardKeyboardRef.current
+      const { top, height } = keyboard.getBoundingClientRect()
+      if (top < (window.innerHeight - height)) {
+        keyboard.classList.add('fade')
+      }
+    }}>
+      <StandardKeyboard ref={standardKeyboardRef} />
+    </CSSTransition>
+    <CSSTransition nodeRef={decimalKeyboardRef} in={keyboardState === State.Decimal} timeout={500} classNames="decimal-keyboard" unmountOnExit>
+      <DecimalKeyboard ref={decimalKeyboardRef} />
+    </CSSTransition>
+  </>
 }

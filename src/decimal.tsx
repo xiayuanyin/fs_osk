@@ -1,4 +1,4 @@
-import React, { useRef } from 'react'
+import React, { MutableRefObject, forwardRef, useRef } from 'react'
 import { backspace, inputCharacterAtCursor } from './util'
 
 function Key({ keyname, onPointerDown }: { keyname: string, onPointerDown?: React.PointerEventHandler<HTMLDivElement> }) {
@@ -9,9 +9,8 @@ function Key({ keyname, onPointerDown }: { keyname: string, onPointerDown?: Reac
 
 const DECIMAL_ONLY = /^-?\d*(?:\.\d*)?$/
 
-export function DecimalKeyboard() {
+export const DecimalKeyboard = forwardRef(function DecimalKeyboard(_props, keyboardRef: MutableRefObject<HTMLDivElement>) {
   const inputRef = useRef<HTMLInputElement>(null)
-  const keyboardRef = useRef<HTMLDivElement>(null)
 
   function getPointerDownHandler(keyname: string) {
     return function(e: React.PointerEvent<HTMLDivElement>) {
@@ -64,4 +63,4 @@ export function DecimalKeyboard() {
       input.selectionStart = input.selectionEnd = Math.min(input.value.length, input.selectionEnd + 1)
     }} />
   </div >
-}
+})

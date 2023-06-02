@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Dispatch, SetStateAction, RefObject } from 'react'
 
 const inputValueSetter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value").set
 const textAreaValueSetter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, "value").set
@@ -6,9 +6,9 @@ const textAreaValueSetter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.
 export interface XYSetter {
   x: number
   y: number
-  setX: React.Dispatch<React.SetStateAction<number>>
-  setY: React.Dispatch<React.SetStateAction<number>>
-  keyboardRef: React.RefObject<HTMLElement>
+  setX: Dispatch<SetStateAction<number>>
+  setY: Dispatch<SetStateAction<number>>
+  keyboardRef: RefObject<HTMLElement>
 }
 
 export function handleMove(event: React.PointerEvent<Element>, { x, y, setX, setY, keyboardRef }: XYSetter) {
@@ -19,11 +19,7 @@ export function handleMove(event: React.PointerEvent<Element>, { x, y, setX, set
 
   function pointermove(event: PointerEvent) {
     const { clientX, clientY } = event
-
-    const currentX = x + clientX - startX
-    const currentY = y + clientY - startY
-
-    keyboardElement.style.transform = `translate(${currentX}px, ${currentY}px)`
+    keyboardElement.style.transform = `translate(${clientX - startX}px, ${clientY - startY}px)`
   }
 
   function pointerup(event: PointerEvent) {
@@ -34,6 +30,8 @@ export function handleMove(event: React.PointerEvent<Element>, { x, y, setX, set
 
     const finalX = x + clientX - startX
     const finalY = y + clientY - startY
+    keyboardElement.style.transform = ''
+
     setX(finalX)
     setY(finalY)
   }

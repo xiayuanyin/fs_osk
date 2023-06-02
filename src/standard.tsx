@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react"
+import React, { MutableRefObject, forwardRef, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react"
 
 import { KeyboardMode, Alignment } from './keycap'
 import { KEY_CAPS } from "./definition"
@@ -55,10 +55,9 @@ function processFunctionKey(
   }
 }
 
-export function StandardKeyboard() {
+export const StandardKeyboard = forwardRef<HTMLDivElement>(function StandardKeyboard(_props, keyboardRef: MutableRefObject<HTMLDivElement>) {
   console.log('keyboard renders')
   const [mode, setMode] = useState(KeyboardMode.Standard)
-  const keyboardRef = useRef<HTMLDivElement>(null)
   const [x, setX] = useState(0)
   const [y, setY] = useState(0)
 
@@ -96,19 +95,23 @@ export function StandardKeyboard() {
   useLayoutEffect(() => {
     if (!keyboardRef.current) return
 
-    const { width, height } = keyboardRef.current.getBoundingClientRect()
+    const keyboard = keyboardRef.current
+
+    const { width, height } = keyboard.getBoundingClientRect()
     const { innerWidth, innerHeight } = window
 
     // 底部居中
+    const x = (innerWidth - width) / 2
+    const y = innerHeight - height
     setX((innerWidth - width) / 2)
     setY(innerHeight - height)
-  }, [keyboardRef.current])
+  }, [])
 
   return (
     <div id="keyboard"
       ref={keyboardRef}
       onPointerDown={(e) => e.target instanceof HTMLInputElement || e.preventDefault()}
-      style={{ transform: `translate(${x}px, ${y}px)` }}>
+      style={{ left: `${x}px`, top: `${y}px` }}>
       <input name="test1" />
       <input name="test2" />
       {KEY_CAPS.map((row, i) => {
@@ -130,4 +133,4 @@ export function StandardKeyboard() {
       })}
     </div>
   )
-}
+})
