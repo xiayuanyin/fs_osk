@@ -11,7 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "esbuild-style-plugin": "link:../esbuild-style-plugin",
+    "esbuild-style-plugin": "git+https://git.31think.com/lib/esbuild-style-plugin.git",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
