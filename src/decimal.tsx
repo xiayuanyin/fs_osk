@@ -16,7 +16,7 @@ export function DecimalKeyboard() {
   function getPointerDownHandler(keyname: string) {
     return function(e: React.PointerEvent<HTMLDivElement>) {
       e.preventDefault()
-      inputCharacterAtCursor(inputRef.current!, keyname, DECIMAL_ONLY)
+      inputCharacterAtCursor(inputRef.current, keyname, DECIMAL_ONLY)
     }
   }
 
@@ -42,26 +42,26 @@ export function DecimalKeyboard() {
 
     <Key keyname='bksp' onPointerDown={(e) => {
       e.preventDefault()
-      backspace(inputRef.current!)
+      backspace(inputRef.current)
     }} />
     <Key keyname='return' />
     <Key keyname='clear' onPointerDown={(e => {
       e.preventDefault()
-      inputRef.current!.value = ''
+      inputRef.current.value = ''
     })} />
     <Key keyname="←" onPointerDown={(e) => {
       e.preventDefault()
       if (!inputRef.current) return
       const input = inputRef.current
 
-      input.selectionStart = input.selectionEnd = Math.max(0, input.selectionStart! - 1)
+      input.selectionStart = input.selectionEnd = Math.max(0, input.selectionStart - 1)
     }} />
     <Key keyname="→" onPointerDown={(e) => {
       e.preventDefault()
       if (!inputRef.current) return
       const input = inputRef.current
 
-      input.selectionStart = input.selectionEnd = Math.min(input.value.length, input.selectionEnd! + 1)
+      input.selectionStart = input.selectionEnd = Math.min(input.value.length, input.selectionEnd + 1)
     }} />
   </div >
 }

@@ -6,22 +6,36 @@ const textAreaValueSetter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.
 export interface XYSetter {
   x: number
   y: number
-  setX: (n: number) => void
-  setY: (n: number) => void
+  setX: React.Dispatch<React.SetStateAction<number>>
+  setY: React.Dispatch<React.SetStateAction<number>>
+  keyboardRef: React.RefObject<HTMLElement>
 }
 
-export function handleMove(event: React.PointerEvent<Element>, { x, y, setX, setY }: XYSetter) {
+export function handleMove(event: React.PointerEvent<Element>, { x, y, setX, setY, keyboardRef }: XYSetter) {
   const { clientX: startX, clientY: startY } = event
+
+  console.log('start handling move')
+  const keyboardElement = keyboardRef.current
 
   function pointermove(event: PointerEvent) {
     const { clientX, clientY } = event
 
-    setX(x + clientX - startX)
-    setY(y + clientY - startY)
+    const currentX = x + clientX - startX
+    const currentY = y + clientY - startY
+
+    keyboardElement.style.transform = `translate(${currentX}px, ${currentY}px)`
   }
 
-  function pointerup(_event: PointerEvent) {
+  function pointerup(event: PointerEvent) {
+    console.log('pointer up')
+    const { clientX, clientY } = event
+
     window.removeEventListener('pointermove', pointermove)
+
+    const finalX = x + clientX - startX
+    const finalY = y + clientY - startY
+    setX(finalX)
+    setY(finalY)
   }
 
   window.addEventListener('pointermove', pointermove, { passive: true })
@@ -35,9 +49,9 @@ export function setInputValue(
   selectionEnd: number
 ) {
   if (input instanceof HTMLInputElement) {
-    inputValueSetter!.call(input, value)
+    inputValueSetter.call(input, value)
   } else {
-    textAreaValueSetter!.call(input, value)
+    textAreaValueSetter.call(input, value)
   }
 
   input.setSelectionRange(selectionStart, selectionEnd)
@@ -47,26 +61,26 @@ export function setInputValue(
 
 export function inputCharacterAtCursor(input: HTMLInputElement | HTMLTextAreaElement, keyname: string, pattern?: RegExp) {
   const { selectionStart, selectionEnd, value } = input
-  const newValue = `${value.substring(0, selectionStart!)}${keyname}${value.substring(selectionEnd!)}`
+  const newValue = `${value.substring(0, selectionStart)}${keyname}${value.substring(selectionEnd)}`
   if (pattern && !pattern.test(newValue)) {
     return
   }
 
-  setInputValue(input, newValue, selectionStart! + 1, selectionStart! + 1)
+  setInputValue(input, newValue, selectionStart + 1, selectionStart + 1)
 }
 
 export function backspace(input: HTMLInputElement | HTMLTextAreaElement) {
   const { selectionStart, selectionEnd, value } = input
 
   if (selectionStart !== selectionEnd) {
-    const newValue = `${value.substring(0, selectionStart!)}${value.substring(selectionEnd!)}`
-    setInputValue(input, newValue, selectionStart!, selectionStart!)
+    const newValue = `${value.substring(0, selectionStart)}${value.substring(selectionEnd)}`
+    setInputValue(input, newValue, selectionStart, selectionStart)
   } else {
     if (selectionStart === 0) {
       return
     } else {
-      const newStart = selectionStart! - 1
-      const newValue = `${value.substring(0, newStart)}${value.substring(selectionStart!)}`
+      const newStart = selectionStart - 1
+      const newValue = `${value.substring(0, newStart)}${value.substring(selectionStart)}`
       setInputValue(input, newValue, newStart, newStart)
     }
   }

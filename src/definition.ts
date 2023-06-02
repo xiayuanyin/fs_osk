@@ -14,5 +14,5 @@ export const KEY_CAPS = STANDARD_KEYBOARD.trim()
       .map((d) => new KeyCap(d))
   })
 
-KEY_CAPS[2].at(-1)!.reactKey = "shift_right"
-KEY_CAPS[3].at(3)!.reactKey = ".?123_right"
+KEY_CAPS[2].at(-1).reactKey = "shift_right"
+KEY_CAPS[3].at(3).reactKey = ".?123_right"

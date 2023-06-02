@@ -1,10 +1,9 @@
-import React, { useRef, useState } from "react"
-import { useLayoutEffect } from "react"
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react"
 
 import { KeyboardMode, Alignment } from './keycap'
 import { KEY_CAPS } from "./definition"
 import { Key } from "./key"
-import { setInputValue, handleMove, XYSetter, inputCharacterAtCursor, backspace } from "./util"
+import { handleMove, XYSetter, inputCharacterAtCursor, backspace } from "./util"
 
 function processFunctionKey(
   keyname: string,
@@ -57,12 +56,13 @@ function processFunctionKey(
 }
 
 export function StandardKeyboard() {
+  console.log('keyboard renders')
   const [mode, setMode] = useState(KeyboardMode.Standard)
   const keyboardRef = useRef<HTMLDivElement>(null)
   const [x, setX] = useState(0)
   const [y, setY] = useState(0)
 
-  const onKeyPress = (e: React.PointerEvent<Element>): void => {
+  const onKeyPress = useCallback((e: React.PointerEvent<Element>) => {
     // console.log("keypressed")
     const div = e.currentTarget as HTMLElement
     let keyname = div.dataset.keyname
@@ -84,19 +84,19 @@ export function StandardKeyboard() {
     }
 
     if (keyname?.length !== 1) {
-      processFunctionKey(keyname!, input, mode, setMode, e, { x, y, setX, setY })
+      processFunctionKey(keyname, input, mode, setMode, e, { x, y, setX, setY, keyboardRef })
       return
     }
 
     if (input instanceof HTMLInputElement || input instanceof HTMLTextAreaElement) {
       inputCharacterAtCursor(input, keyname)
     }
-  }
+  }, [mode, setMode, x, y, setX, setY, keyboardRef])
 
   useLayoutEffect(() => {
     if (!keyboardRef.current) return
 
-    const { width, height } = keyboardRef.current!.getBoundingClientRect()
+    const { width, height } = keyboardRef.current.getBoundingClientRect()
     const { innerWidth, innerHeight } = window
 
     // 底部居中

@@ -1,3 +1,4 @@
+import React from 'react'
 import { KeyboardMode, KeyCap, Alignment } from "./keycap"
 
 export interface KeyProps {
@@ -11,6 +12,8 @@ export interface KeyProps {
 export function Key({ keycap, mode, alignment, onKeyPress }: KeyProps) {
   let fragment: React.ReactNode
   const { isFunctionKey } = keycap
+
+  console.log('key renders')
 
   switch (mode) {
     case KeyboardMode.Standard:
