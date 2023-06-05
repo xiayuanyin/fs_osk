@@ -5,11 +5,12 @@ export interface KeyProps {
   keycap: KeyCap
   mode: KeyboardMode
   alignment: Alignment
-  onKeyPress: React.PointerEventHandler
+  onPointerUp: React.PointerEventHandler
+  onPointerDown: React.PointerEventHandler
 }
 
 
-export function Key({ keycap, mode, alignment, onKeyPress }: KeyProps) {
+export function Key({ keycap, mode, alignment, onPointerUp, onPointerDown }: KeyProps) {
   let fragment: React.ReactNode
   const { isFunctionKey } = keycap
 
@@ -25,6 +26,7 @@ export function Key({ keycap, mode, alignment, onKeyPress }: KeyProps) {
       )
       break
     case KeyboardMode.Shift:
+    case KeyboardMode.Capslocked:
       fragment = (
         <>
           {!isFunctionKey && <div className="alternate">{keycap.alternateName}</div>}
@@ -51,9 +53,11 @@ export function Key({ keycap, mode, alignment, onKeyPress }: KeyProps) {
 
   return (
     <div
-      onPointerDown={onKeyPress}
+      onPointerUp={onPointerUp}
+      onPointerDown={onPointerDown}
       className={`keycap ${keycap.isFunctionKey ? "function-key" : "character-key"}`}
       data-keyname={keycap.currentName(mode)}
+      data-alterate-keyname={keycap.currentAlternateName(mode)}
     >
       {fragment}
     </div>

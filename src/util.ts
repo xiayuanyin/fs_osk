@@ -65,6 +65,8 @@ export function inputCharacterAtCursor(input: HTMLInputElement | HTMLTextAreaEle
   }
 
   setInputValue(input, newValue, selectionStart + 1, selectionStart + 1)
+  input.blur()
+  input.focus()
 }
 
 export function backspace(input: HTMLInputElement | HTMLTextAreaElement) {

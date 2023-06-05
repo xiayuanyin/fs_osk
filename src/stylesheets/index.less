@@ -9,6 +9,7 @@
     font-size: 15px;
     cursor: pointer;
     pointer-events: auto;
+    font-family: sans-serif;
 
     &.decimal {
         display: grid;
@@ -45,6 +46,14 @@
             grid-row: 1;
             display: block;
         }
+    }
+
+    &[data-mode=Shift] .keycap.function-key[data-keyname=shift] {
+        background-color: white;
+    }
+
+    &[data-mode=Capslocked] .keycap.function-key[data-keyname=capslock] {
+        background-color: white;
     }
 
     .keyboard-row {

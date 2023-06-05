@@ -1,8 +1,9 @@
 export enum KeyboardMode {
-  Standard,
-  Shift,
-  Alternate,
-  AlternateShift
+  Standard = 'Standard',
+  Shift = 'Shift',
+  Capslocked = 'Capslocked',
+  Alternate = 'Alternate',
+  AlternateShift = 'AlternateShift'
 }
 
 export enum Alignment {
@@ -58,11 +59,25 @@ export class KeyCap {
       case KeyboardMode.Standard:
         return this.name
       case KeyboardMode.Shift:
+      case KeyboardMode.Capslocked:
         return this.shiftName
       case KeyboardMode.Alternate:
         return this.alternateName ?? this.name
       case KeyboardMode.AlternateShift:
         return this.alternateShiftName ?? this.alternateName ?? this.name
+    }
+  }
+
+  currentAlternateName(mode: KeyboardMode) {
+    switch (mode) {
+      case KeyboardMode.Standard:
+      case KeyboardMode.Shift:
+      case KeyboardMode.Capslocked:
+        return this.alternateName
+      case KeyboardMode.Alternate:
+        return this.alternateShiftName
+      case KeyboardMode.AlternateShift:
+        return null
     }
   }
 }
