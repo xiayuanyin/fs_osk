@@ -66,6 +66,9 @@ function processFunctionKey(
     case "move":
       handleMove(event, xySetter)
       break
+    case 'closekeyboard':
+      document.activeElement.blur()
+      break;
   }
 }
 
@@ -188,7 +191,7 @@ export const StandardKeyboard = forwardRef<HTMLDivElement>(function StandardKeyb
       const alternateKeyname = div.dataset.alternateKeyname
 
 
-      if (alternateKeyname) {
+      if (keyname !== ' ' && alternateKeyname) {
         beginDraggingToAlternative(e, (usingAlternate) => {
           inputCharacterAtCursor(input, usingAlternate ? alternateKeyname : keyname)
           if (mode === KeyboardMode.Shift) {
@@ -205,7 +208,6 @@ export const StandardKeyboard = forwardRef<HTMLDivElement>(function StandardKeyb
       }
     } else {
       processFunctionKey(keyname, mode, setMode, e, { x, y, setX, setY, keyboardRef })
-
     }
   }, [mode, setMode, x, y, setX, setY, keyboardRef])
 
