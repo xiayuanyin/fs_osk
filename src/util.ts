@@ -9,7 +9,7 @@ const textAreaValueSetter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.
 export type KeyboardElement = HTMLInputElement | HTMLTextAreaElement
 
 export function isKeyboardElement(element: any) {
-  return element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement
+  return element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement || element?.nodeName == 'FS-OSK'
 }
 
 export function desiredKeyboardState(input: KeyboardElement) {
@@ -77,6 +77,11 @@ export function setInputValue(
   input.dispatchEvent(new Event("input", { bubbles: true, cancelable: true }))
 }
 
+function disableFocus(e: FocusEvent) {
+  e.stopPropagation()
+  e.stopImmediatePropagation()
+  e.preventDefault()
+}
 
 export function inputCharacterAtCursor(input: HTMLInputElement | HTMLTextAreaElement, keyname: string, pattern?: RegExp) {
   const { selectionStart, selectionEnd, value } = input
@@ -86,10 +91,10 @@ export function inputCharacterAtCursor(input: HTMLInputElement | HTMLTextAreaEle
   }
 
   setInputValue(input, newValue, selectionStart + 1, selectionStart + 1);
-  (input as any).inputtingCharacterProgrammatically = true
+  input.addEventListener('focusout', disableFocus)
   input.blur()
   input.focus();
-  (input as any).inputtingCharacterProgrammatically = false
+  input.removeEventListener('focusout', disableFocus)
 }
 
 export function backspace(input: HTMLInputElement | HTMLTextAreaElement) {

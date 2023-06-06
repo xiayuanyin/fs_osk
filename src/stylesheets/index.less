@@ -1,4 +1,8 @@
 #keyboard {
+    --decimal-keyboard-easing: cubic-bezier(0.76, 0, 0.24, 1);
+    --decimal-keyboard-translate-y: 10px;
+    --decimal-keyboard-transition-duration: 250ms;
+
     position: absolute;
     z-index: 10000;
     background: white;
@@ -10,6 +14,12 @@
     cursor: pointer;
     pointer-events: auto;
     font-family: sans-serif;
+    line-height: 1;
+    box-sizing: content-box;
+
+    * {
+        box-sizing: content-box;
+    }
 
     &.decimal {
         display: grid;

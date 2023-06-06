@@ -5,7 +5,7 @@ import { StandardKeyboard } from "./standard";
 import { KeyboardElement, isKeyboardElement, KeyboardState, desiredKeyboardState } from "./util";
 
 function onKeyboard(element: any) {
-  return !!(element as HTMLElement).closest('#keyboard')
+  return !!(element as HTMLElement).closest('#keyboard') || element.nodeName === 'FS-OSK'
 }
 
 export function OnscreenKeyboardContainer() {
@@ -13,9 +13,10 @@ export function OnscreenKeyboardContainer() {
   const [targetElement, setTargetElement] = useState<KeyboardElement>(null)
   const standardKeyboardRef = useRef<HTMLDivElement>(null)
   const decimalKeyboardRef = useRef<HTMLDivElement>(null)
-  // const targetElement = useRef<KeyboardElement | null>(null)
 
   function focusin(event: FocusEvent) {
+    // console.log("focusin", event.target, "relatedTarget:", event.relatedTarget)
+
     if (isKeyboardElement(event.target) && !onKeyboard(event.target)) {
       setTargetElement(document.activeElement as KeyboardElement)
       setKeyboardState(desiredKeyboardState(event.target as KeyboardElement))
@@ -23,14 +24,9 @@ export function OnscreenKeyboardContainer() {
   }
 
   function focusout(event: FocusEvent) {
-    if ((event.target as any).inputtingCharacterProgrammatically) return
+    // console.log("focusout", event.target, "relatedTarget:", event.relatedTarget)
 
-    if (
-      (
-        // !onKeyboard(event.target) &&
-        !isKeyboardElement(event.relatedTarget)
-      )
-    ) {
+    if (!isKeyboardElement(event.relatedTarget)) {
       setKeyboardState(KeyboardState.None)
     }
   }

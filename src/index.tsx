@@ -1,4 +1,4 @@
 export * from './standard'
 export * from './decimal'
 export * from './initialize'
-import './stylesheets/index.less'
+import './custom_element'

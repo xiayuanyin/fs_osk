@@ -83,7 +83,6 @@ function beginDraggingToAlternative(e: React.PointerEvent<Element>, onPointerUp:
   const acR = parseInt(matchedColor[1], 10)
   const acG = parseInt(matchedColor[2], 10)
   const acB = parseInt(matchedColor[3], 10)
-  console.log({ acR, acG, acB })
 
   const {
     maxDeltaY,
