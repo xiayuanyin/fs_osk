@@ -1,12 +1,27 @@
-import React, { MutableRefObject, forwardRef, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react"
+import React, { MutableRefObject, forwardRef, useCallback, useLayoutEffect, useRef, useState } from "react"
 
-import { KeyboardMode, Alignment } from './keycap'
+import { KeyboardMode } from './keycap'
 import { KEY_CAPS } from "./definition"
 import { Key } from "./key"
 import { handleMove, XYSetter, inputCharacterAtCursor, backspace } from "./util"
 
 const REPEATE_INPUT_DELAY = 500 // ms
 const REPEATE_INPUT_INTERVAL = 50 //ms
+
+const ALTERNATE_SLIDE = {
+  maxDeltaY: 60,
+  alternateKeyTargetStyle: {
+    scale: 2,
+    translateY: 0.6, // em
+    color: {
+      r: 0, g: 0, b: 0
+    }
+  },
+  currentKeyTargetStyle: {
+    scale: 0,
+    opacity: 0
+  }
+}
 
 function processFunctionKey(
   keyname: string,
@@ -78,16 +93,85 @@ function delayedRepeatInput(timeoutRef: MutableRefObject<number>, intervalRef: M
   }, { once: true })
 }
 
-function beginDraggingToAlternative(e: React.PointerEvent<Element>) {
-  const { clientY: StartY } = e
+function beginDraggingToAlternative(e: React.PointerEvent<Element>, onPointerUp: (usingAlternate: boolean) => void) {
+  const { clientY: startY } = e
+  const keycap = e.currentTarget as HTMLElement
+  const alternate = keycap.children[0] as HTMLElement
+  const current = keycap.children[1] as HTMLElement
+
+  const alternateColor = window.getComputedStyle(alternate).getPropertyValue("color")
+  const matchedColor = alternateColor.match(/rgb\(\s*(.*),\s*(.*),\s*(.*)\s*\)/)
+  const acR = parseInt(matchedColor[1], 10)
+  const acG = parseInt(matchedColor[2], 10)
+  const acB = parseInt(matchedColor[3], 10)
+  console.log({ acR, acG, acB })
+
+  const {
+    maxDeltaY,
+    alternateKeyTargetStyle: {
+      scale,
+      translateY,
+      color: {
+        r, g, b
+      }
+    },
+    currentKeyTargetStyle: {
+      scale: scaleCurrent,
+      opacity
+    }
+  } = ALTERNATE_SLIDE
+
+  const scaleDefault = 1
+  const dr = r - acR, dg = g - acG, db = b - acB
+
+  let usingAlternate = false
 
   function pointermove(e: PointerEvent) {
     const { clientY } = e
+    const deltaY = clientY - startY
 
+    if (deltaY <= 0) {
+      alternate.style.transform = ''
+      alternate.style.color = ''
+      current.style.transform = ''
+      current.style.opacity = ''
+      usingAlternate = false
+    } else if (deltaY > maxDeltaY) {
+      alternate.style.transform = `scale(${scale}) translateY(${translateY}em)`
+      alternate.style.color = `rgb(${r}, ${g}, ${b})`
+      current.style.transform = `scale(${scaleCurrent})`
+      current.style.opacity = `${opacity}`
+      usingAlternate = true
+    } else {
+      const ratio = deltaY / maxDeltaY
+      usingAlternate = ratio > 0.5
+
+      alternate.style.transform = `scale(${(scale - scaleDefault) * ratio + scaleDefault}) translateY(${translateY * ratio}em)`
+      alternate.style.color = `rgb(${acR + dr * ratio}, ${acG + dg * ratio}, ${acB + db * ratio})`
+      current.style.transform = `scale(${(scaleCurrent - scaleDefault) * ratio + scaleDefault})`
+      current.style.opacity = `${1 - (1 - opacity) * ratio}`
+    }
   }
 
-  function pointerup(e: PointerEvent) {
+  function pointerup() {
     window.removeEventListener('pointermove', pointermove)
+    alternate.classList.add('sliding-back')
+    current.classList.add('sliding-back')
+
+    alternate.addEventListener('transitionend', () => {
+      alternate.classList.remove('sliding-back')
+    }, { once: true })
+
+    current.addEventListener('transitionend', () => {
+      current.classList.remove('sliding-back')
+    }, { once: true })
+
+    alternate.style.transform = ''
+    alternate.style.color = ''
+    current.style.transform = ''
+    current.style.opacity = ''
+
+    onPointerUp(usingAlternate)
   }
 
   window.addEventListener('pointermove', pointermove, { passive: true })
@@ -101,8 +185,7 @@ export const StandardKeyboard = forwardRef<HTMLDivElement>(function StandardKeyb
   const delayRef = useRef<number>(null)
   const intervalRef = useRef<number>(null)
 
-  const onPointerUp = useCallback((e: React.PointerEvent<Element>) => {
-    // console.log("keypressed")
+  const onPointerDown = useCallback((e: React.PointerEvent<Element>) => {
     const div = e.currentTarget as HTMLElement
     let keyname = div.dataset.keyname
     switch (keyname) {
@@ -115,40 +198,11 @@ export const StandardKeyboard = forwardRef<HTMLDivElement>(function StandardKeyb
     }
 
     e.preventDefault() // 防止丢失焦点
-
     const input = document.activeElement
     if (!input || !(input instanceof HTMLInputElement || input instanceof HTMLTextAreaElement)) {
       console.warn("no active element")
       return
     }
-
-    if (keyname?.length !== 1) {
-      if (keyname === 'backspace') {
-        // 在pointerdown处理
-        return
-      } else {
-        processFunctionKey(keyname, mode, setMode, e, { x, y, setX, setY, keyboardRef })
-      }
-
-      return
-    }
-
-    if (input instanceof HTMLInputElement || input instanceof HTMLTextAreaElement) {
-      inputCharacterAtCursor(input, keyname)
-      if (mode === KeyboardMode.Shift) {
-        setMode(KeyboardMode.Standard)
-      }
-    }
-  }, [mode, setMode, x, y, setX, setY, keyboardRef])
-
-  const onPointerDown = useCallback((e: React.PointerEvent<Element>) => {
-    const input = document.activeElement
-    if (!input || !(input instanceof HTMLInputElement || input instanceof HTMLTextAreaElement)) {
-      console.warn("no active element")
-      return
-    }
-    const div = e.currentTarget as HTMLElement
-    const keyname = div.dataset.keyname
 
     if (keyname === 'backspace') {
       backspace(input)
@@ -157,11 +211,28 @@ export const StandardKeyboard = forwardRef<HTMLDivElement>(function StandardKeyb
       })
     } else if (keyname.length === 1) {
       const alternateKeyname = div.dataset.alternateKeyname
-      if (!alternateKeyname) return
 
-      beginDraggingToAlternative(e)
+
+      if (alternateKeyname) {
+        beginDraggingToAlternative(e, (usingAlternate) => {
+          inputCharacterAtCursor(input, usingAlternate ? alternateKeyname : keyname)
+          if (mode === KeyboardMode.Shift) {
+            setMode(KeyboardMode.Standard)
+          }
+        })
+      } else {
+        window.addEventListener('pointerup', () => {
+          inputCharacterAtCursor(input, keyname)
+          if (mode === KeyboardMode.Shift) {
+            setMode(KeyboardMode.Standard)
+          }
+        }, { once: true })
+      }
+    } else {
+      processFunctionKey(keyname, mode, setMode, e, { x, y, setX, setY, keyboardRef })
+
     }
-  }, [delayRef, intervalRef])
+  }, [mode, setMode, x, y, setX, setY, keyboardRef])
 
   useLayoutEffect(() => {
     if (!keyboardRef.current) return
@@ -190,11 +261,9 @@ export const StandardKeyboard = forwardRef<HTMLDivElement>(function StandardKeyb
             {row.map((keycap) => {
               return (
                 <Key
-                  onPointerUp={onPointerUp}
                   onPointerDown={onPointerDown}
                   key={keycap.reactKey}
                   keycap={keycap}
-                  alignment={Alignment.Left}
                   mode={mode}
                 />
               )

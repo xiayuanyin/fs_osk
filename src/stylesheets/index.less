@@ -107,11 +107,17 @@
             font-size: .6em;
             color: gray;
         }
+
+        .alternate.sliding-back, .current.sliding-back {
+            transition: all .25s ease-in-out;
+        }
     }
 
     &.slide-in {
         animation: slide-in .4s ease-in-out;
     }
+
+
 }
 
 @keyframes slide-in {

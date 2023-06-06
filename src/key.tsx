@@ -1,20 +1,15 @@
 import React from 'react'
-import { KeyboardMode, KeyCap, Alignment } from "./keycap"
+import { KeyboardMode, KeyCap } from "./keycap"
 
 export interface KeyProps {
   keycap: KeyCap
   mode: KeyboardMode
-  alignment: Alignment
-  onPointerUp: React.PointerEventHandler
   onPointerDown: React.PointerEventHandler
 }
 
-
-export function Key({ keycap, mode, alignment, onPointerUp, onPointerDown }: KeyProps) {
+export function Key({ keycap, mode, onPointerDown }: KeyProps) {
   let fragment: React.ReactNode
   const { isFunctionKey } = keycap
-
-  console.log('key renders')
 
   switch (mode) {
     case KeyboardMode.Standard:
@@ -53,11 +48,10 @@ export function Key({ keycap, mode, alignment, onPointerUp, onPointerDown }: Key
 
   return (
     <div
-      onPointerUp={onPointerUp}
       onPointerDown={onPointerDown}
       className={`keycap ${keycap.isFunctionKey ? "function-key" : "character-key"}`}
       data-keyname={keycap.currentName(mode)}
-      data-alterate-keyname={keycap.currentAlternateName(mode)}
+      data-alternate-keyname={keycap.currentAlternateName(mode)}
     >
       {fragment}
     </div>
