@@ -67,7 +67,7 @@ function processFunctionKey(
       handleMove(event, xySetter)
       break
     case 'closekeyboard':
-      document.activeElement.blur()
+      (document.activeElement instanceof HTMLElement) && document.activeElement.blur()
       break;
   }
 }
