@@ -3,10 +3,7 @@ import React, { MutableRefObject, forwardRef, useCallback, useLayoutEffect, useR
 import { KeyboardMode } from './keycap'
 import { KEY_CAPS } from "./definition"
 import { Key } from "./key"
-import { handleMove, XYSetter, inputCharacterAtCursor, backspace } from "./util"
-
-const REPEATE_INPUT_DELAY = 500 // ms
-const REPEATE_INPUT_INTERVAL = 50 //ms
+import { handleMove, XYSetter, inputCharacterAtCursor, backspace, delayedRepeatInput } from "./util"
 
 const ALTERNATE_SLIDE = {
   maxDeltaY: 60,
@@ -70,27 +67,6 @@ function processFunctionKey(
       handleMove(event, xySetter)
       break
   }
-}
-
-function delayedRepeatInput(timeoutRef: MutableRefObject<number>, intervalRef: MutableRefObject<number>, action: () => void) {
-  timeoutRef.current = setTimeout(() => {
-    timeoutRef.current = null
-    intervalRef.current = setInterval(() => {
-      action()
-    }, REPEATE_INPUT_INTERVAL)
-  }, REPEATE_INPUT_DELAY)
-
-  window.addEventListener('pointerup', () => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current)
-      timeoutRef.current = null
-    }
-
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current)
-      intervalRef.current = null
-    }
-  }, { once: true })
 }
 
 function beginDraggingToAlternative(e: React.PointerEvent<Element>, onPointerUp: (usingAlternate: boolean) => void) {
@@ -197,7 +173,6 @@ export const StandardKeyboard = forwardRef<HTMLDivElement>(function StandardKeyb
         break
     }
 
-    e.preventDefault() // 防止丢失焦点
     const input = document.activeElement
     if (!input || !(input instanceof HTMLInputElement || input instanceof HTMLTextAreaElement)) {
       console.warn("no active element")
@@ -250,11 +225,9 @@ export const StandardKeyboard = forwardRef<HTMLDivElement>(function StandardKeyb
   return (
     <div id="keyboard"
       ref={keyboardRef}
-      onPointerDown={(e) => e.target instanceof HTMLInputElement || e.preventDefault()}
+      onPointerDown={(e) => e.target instanceof HTMLInputElement || e.preventDefault()} // 防止在打字时丢失焦点
       data-mode={mode}
       style={{ left: `${x}px`, top: `${y}px` }}>
-      <input name="test1" />
-      <input name="test2" />
       {KEY_CAPS.map((row, i) => {
         return (
           <div key={i} className="keyboard-row">

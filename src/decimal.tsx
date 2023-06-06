@@ -1,30 +1,74 @@
-import React, { MutableRefObject, forwardRef, useRef } from 'react'
-import { backspace, inputCharacterAtCursor } from './util'
+import React, { MutableRefObject, forwardRef, useLayoutEffect, useRef, useState } from 'react'
+import { KeyboardElement, KeyboardState, backspace, delayedRepeatInput, desiredKeyboardState, inputCharacterAtCursor, isKeyboardElement } from './util'
 
-function Key({ keyname, onPointerDown }: { keyname: string, onPointerDown?: React.PointerEventHandler<HTMLDivElement> }) {
-  return <div className='keycap' data-keyname={keyname} onPointerDown={onPointerDown}>
+function Key(
+  { keyname, onPointerDown, isFunctionKey = false }: {
+    keyname: string,
+    onPointerDown?: React.PointerEventHandler<HTMLDivElement>,
+    isFunctionKey?: boolean
+  }
+) {
+  return <div className={`keycap ${isFunctionKey ? 'function-key' : ''}`} data-keyname={keyname} onPointerDown={onPointerDown}>
     {keyname}
   </div>
 }
 
 const DECIMAL_ONLY = /^-?\d*(?:\.\d*)?$/
 
-export const DecimalKeyboard = forwardRef(function DecimalKeyboard(_props, keyboardRef: MutableRefObject<HTMLDivElement>) {
+export const DecimalKeyboard = forwardRef(function DecimalKeyboard(
+  { targetElement }: { targetElement: KeyboardElement },
+  keyboardRef: MutableRefObject<HTMLDivElement>
+) {
   const inputRef = useRef<HTMLInputElement>(null)
+  const delayedRef = useRef<number>(null)
+  const intervalRef = useRef<number>(null)
+  const [x, setX] = useState(0)
+  const [y, setY] = useState(0)
+
+  useLayoutEffect(() => {
+    if (desiredKeyboardState(targetElement) != KeyboardState.Decimal) return
+
+    const { left: elementLeft, bottom: elementBottom } = targetElement.getBoundingClientRect()
+    // const { width: keyboardWidth, height: keyboardHeight } = keyboardRef.current.getBoundingClientRect()
+    setX(elementLeft)
+    setY(elementBottom)
+
+    inputRef.current.value = targetElement.value
+    inputRef.current.focus()
+
+    function focus() {
+      inputRef.current.focus()
+    }
+
+    targetElement.addEventListener('focus', focus)
+
+    return () => {
+      targetElement.removeEventListener('focus', focus)
+    }
+
+  }, [targetElement])
 
   function getPointerDownHandler(keyname: string) {
     return function(e: React.PointerEvent<HTMLDivElement>) {
       e.preventDefault()
+      e.stopPropagation()
       inputCharacterAtCursor(inputRef.current, keyname, DECIMAL_ONLY)
     }
   }
 
-  return <div id="keyboard" ref={keyboardRef} className="decimal" onPointerDown={e => {
-    if (e.target === keyboardRef.current) {
-      e.preventDefault()
-    }
-  }}>
-    <input type="text" ref={inputRef} className='current-input' name="current-input" />
+  return <div
+    id="keyboard"
+    ref={keyboardRef}
+    className="decimal"
+    onPointerDown={e => {
+      e.target instanceof HTMLInputElement || e.preventDefault()
+    }}
+    style={{
+      top: `${y}px`,
+      left: `${x}px`
+    }}
+  >
+    <input type="text" ref={inputRef} className='current-input' name="osk-decimal-current-input" />
     <Key keyname="1" onPointerDown={getPointerDownHandler("1")} />
     <Key keyname="2" onPointerDown={getPointerDownHandler("2")} />
     <Key keyname="3" onPointerDown={getPointerDownHandler("3")} />
@@ -37,30 +81,56 @@ export const DecimalKeyboard = forwardRef(function DecimalKeyboard(_props, keybo
     <Key keyname="9" onPointerDown={getPointerDownHandler("9")} />
     <Key keyname="0" onPointerDown={getPointerDownHandler("0")} />
     <Key keyname="." onPointerDown={getPointerDownHandler(".")} />
-    <Key keyname="-" onPointerDown={getPointerDownHandler("-")} />
+    <Key keyname="-" onPointerDown={(e) => {
+      const { value } = inputRef.current
+      if (value.startsWith('-')) {
+        inputRef.current.value = value.substring(1)
+      } else {
+        inputRef.current.value = '-' + value
+      }
+    }} />
 
-    <Key keyname='bksp' onPointerDown={(e) => {
+    <Key keyname='bksp' isFunctionKey onPointerDown={(e) => {
       e.preventDefault()
       backspace(inputRef.current)
+      delayedRepeatInput(delayedRef, intervalRef, () => {
+        backspace(inputRef.current)
+      })
     }} />
-    <Key keyname='return' />
-    <Key keyname='clear' onPointerDown={(e => {
+
+    <Key keyname='return' isFunctionKey onPointerDown={() => {
+      targetElement.value = inputRef.current.value
+      inputRef.current.blur()
+    }} />
+
+    <Key keyname='clear' isFunctionKey onPointerDown={(e => {
       e.preventDefault()
       inputRef.current.value = ''
     })} />
-    <Key keyname="←" onPointerDown={(e) => {
+
+    <Key keyname="←" isFunctionKey onPointerDown={(e) => {
       e.preventDefault()
       if (!inputRef.current) return
       const input = inputRef.current
 
       input.selectionStart = input.selectionEnd = Math.max(0, input.selectionStart - 1)
+
+      delayedRepeatInput(delayedRef, intervalRef, () => {
+        input.selectionStart = input.selectionEnd = Math.max(0, input.selectionStart - 1)
+      })
+
     }} />
-    <Key keyname="→" onPointerDown={(e) => {
+
+    <Key keyname="→" isFunctionKey onPointerDown={(e) => {
       e.preventDefault()
       if (!inputRef.current) return
       const input = inputRef.current
 
       input.selectionStart = input.selectionEnd = Math.min(input.value.length, input.selectionEnd + 1)
+
+      delayedRepeatInput(delayedRef, intervalRef, () => {
+        input.selectionStart = input.selectionEnd = Math.min(input.value.length, input.selectionEnd + 1)
+      })
     }} />
   </div >
 })

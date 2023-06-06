@@ -6,7 +6,7 @@
     display: flex;
     flex-direction: column;
     gap: 5px;
-    font-size: 15px;
+    font-size: 20px;
     cursor: pointer;
     pointer-events: auto;
     font-family: sans-serif;
@@ -45,6 +45,10 @@
             grid-column: ~"1 / 5";
             grid-row: 1;
             display: block;
+        }
+
+        .function-key {
+            font-size: .8em;
         }
     }
 
@@ -148,13 +152,43 @@
     transition: transform 500ms ease-in-out;
 }
 
+.decimal-keyboard-enter {
+    transform: translateY(5%);
+    opacity: 0;
+}
+
+:root {
+    --decimal-keyboard-easing: cubic-bezier(0.76, 0, 0.24, 1);
+    --decimal-keyboard-translate-y: 10px;
+    --decimal-keyboard-transition-duration: 250ms;
+}
+
+.decimal-keyboard-enter-active {
+    transform: translateY(0);
+    opacity: 1;
+    transition: transform var(--decimal-keyboard-transition-duration) var(--decimal-keyboard-easing),
+                opacity var(--decimal-keyboard-transition-duration) var(--decimal-keyboard-easing);
+}
+
+.decimal-keyboard-exit {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.decimal-keyboard-exit-active {
+    transform: translateY(var(--decimal-keyboard-translate-y));
+    opacity: 0;
+    transition: transform var(--decimal-keyboard-transition-duration) var(--decimal-keyboard-easing),
+                    opacity var(--decimal-keyboard-transition-duration) var(--decimal-keyboard-easing);
+}
+
 .standard-keyboard-exit.fade {
     transform: translateY(0);
     opacity: 1;
 }
 
 .standard-keyboard-exit-active.fade {
-    transform: translateY(5%);
+    transform: translateY(var(--decimal-keyboard-translate-y));
     opacity: 0;
     transition: transform 300ms ease-in-out, opacity 300ms ease-in-out;
 }
