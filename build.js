@@ -8,13 +8,15 @@ const mode = process.argv[2] === 'serve' ? 'serve' : 'build'
 const outdir = mode === 'serve' ? 'build/debug' : 'build/release'
 
 fs.mkdirSync(outdir, { recursive: true })
-fs.copyFileSync('./playground/index.html', `${outdir}/index.html`)
+if (mode === 'serve') fs.copyFileSync('./playground/index.html', `${outdir}/index.html`)
 
 esbuild.context({
   bundle: true,
   sourcemap: true,
+  sourcesContent: mode === 'serve',
   minify: mode === 'build',
-  entryPoints: ["./playground/index.tsx"],
+  entryPoints: mode === 'build' ? ["./src/index.tsx"] : ["./playground/index.tsx"],
+  format: "esm",
   outdir,
   plugins: [
     StylePlugin({
