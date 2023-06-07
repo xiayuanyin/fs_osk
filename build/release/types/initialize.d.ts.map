@@ -1,0 +1,1 @@
+{"version":3,"file":"initialize.d.ts","sourceRoot":"","sources":["../../../src/initialize.tsx"],"names":[],"mappings":"AACA,OAAO,EAAc,IAAI,EAAE,MAAM,kBAAkB,CAAC;AAGpD,qBAAa,gBAAgB;IAC3B,OAAO,EAAE,WAAW,CAAA;IACpB,SAAS,EAAE,IAAI,CAAA;IAEf,OAAO;IAeP,OAAO;CAIR;AAGD,wBAAgB,mBAAmB,SAelC"}

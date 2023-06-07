@@ -1,4 +1,3 @@
-
 import React, { StrictMode } from 'react'
 import { createRoot, Root } from 'react-dom/client'
 import style from './stylesheets/index.less?loader=text'
@@ -26,6 +25,7 @@ class FsOsk extends HTMLElement {
     this.reactRoot = createRoot(this.reactRootElement)
     this.reactRoot.render(
       <StrictMode>
+        <div />
         <OnscreenKeyboardContainer />
       </StrictMode>
     )
@@ -34,6 +34,16 @@ class FsOsk extends HTMLElement {
   disconnectedCallback() {
     this.reactRoot.unmount()
     this.reactRoot = null
+  }
+}
+
+
+
+declare module 'React' {
+  const JSX: {
+    IntrinsicElements: {
+      ['fs-osk']: React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>
+    }
   }
 }
 
