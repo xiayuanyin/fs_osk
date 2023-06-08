@@ -25,7 +25,6 @@ class FsOsk extends HTMLElement {
     this.reactRoot = createRoot(this.reactRootElement)
     this.reactRoot.render(
       <StrictMode>
-        <div />
         <OnscreenKeyboardContainer />
       </StrictMode>
     )

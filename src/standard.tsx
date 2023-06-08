@@ -3,7 +3,7 @@ import React, { MutableRefObject, forwardRef, useCallback, useLayoutEffect, useR
 import { KeyboardMode } from './keycap'
 import { KEY_CAPS } from "./definition"
 import { Key } from "./key"
-import { handleMove, XYSetter, inputCharacterAtCursor, backspace, delayedRepeatInput } from "./util"
+import { handleMove, XYSetter, inputCharacterAtCursor, backspace, delayedRepeatInput, activeElementWithIframe, KeyboardElement } from "./util"
 
 const ALTERNATE_SLIDE = {
   maxDeltaY: 60,
@@ -175,8 +175,8 @@ export const StandardKeyboard = forwardRef<HTMLDivElement>(function StandardKeyb
         break
     }
 
-    const input = document.activeElement
-    if (!input || !(input instanceof HTMLInputElement || input instanceof HTMLTextAreaElement)) {
+    const input = activeElementWithIframe(document) as KeyboardElement
+    if (!input || !(input.tagName === 'INPUT' || input.tagName === 'TEXTAREA')) {
       console.warn("no active element")
       return
     }

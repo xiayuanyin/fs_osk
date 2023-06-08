@@ -9,6 +9,7 @@
     "declaration": true,
     "declarationMap": true,
     // "outFile": "./build/release/index.js",
+    "target": "es2015",
     "moduleResolution": "nodenext"
   },
   "include": ["src/**/*"]

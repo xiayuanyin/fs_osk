@@ -16,7 +16,10 @@ function Key(
 const DECIMAL_ONLY = /^-?\d*(?:\.\d*)?$/
 
 export const DecimalKeyboard = forwardRef(function DecimalKeyboard(
-  { targetElement }: { targetElement: KeyboardElement },
+  { targetElement, focusingOnInputOnKeyboardRef }: {
+    targetElement: KeyboardElement,
+    focusingOnInputOnKeyboardRef: MutableRefObject<boolean>
+  },
   keyboardRef: MutableRefObject<HTMLDivElement>
 ) {
   const inputRef = useRef<HTMLInputElement>(null)
@@ -28,16 +31,37 @@ export const DecimalKeyboard = forwardRef(function DecimalKeyboard(
   useLayoutEffect(() => {
     if (desiredKeyboardState(targetElement) != KeyboardState.Decimal) return
 
-    const { left: elementLeft, bottom: elementBottom } = targetElement.getBoundingClientRect()
-    // const { width: keyboardWidth, height: keyboardHeight } = keyboardRef.current.getBoundingClientRect()
+    let { left: elementLeft, bottom: elementBottom } = targetElement.getBoundingClientRect()
+    const ownerWindow = targetElement.ownerDocument.defaultView
+
+    if (ownerWindow !== window) {
+      let iframe: HTMLIFrameElement | undefined = undefined
+      for (const iframeElement of ownerWindow.parent.document.getElementsByTagName('iframe')) {
+        if (iframeElement.contentDocument === targetElement.ownerDocument) {
+          iframe = iframeElement
+          break
+        }
+      }
+
+      const { left, top } = iframe.getBoundingClientRect()
+      const { borderTopWidth, borderLeftWidth } = getComputedStyle(iframe)
+
+      elementLeft += left + parseInt(borderLeftWidth, 10)
+      elementBottom += top + parseInt(borderTopWidth, 10)
+    }
+
     setX(elementLeft)
     setY(elementBottom)
 
     inputRef.current.value = targetElement.value
+    focusingOnInputOnKeyboardRef.current = true
     inputRef.current.focus()
+    focusingOnInputOnKeyboardRef.current = false
 
     function focus() {
+      focusingOnInputOnKeyboardRef.current = true
       inputRef.current.focus()
+      focusingOnInputOnKeyboardRef.current = false
     }
 
     targetElement.addEventListener('focus', focus)

@@ -2,10 +2,19 @@ import React, { useEffect, useRef, useState } from "react";
 import { CSSTransition } from 'react-transition-group'
 import { DecimalKeyboard } from "./decimal";
 import { StandardKeyboard } from "./standard";
-import { KeyboardElement, isKeyboardElement, KeyboardState, desiredKeyboardState } from "./util";
+import { KeyboardElement, isKeyboardElement, KeyboardState, desiredKeyboardState, fromKeyboardElement, IFocusEvent, activeElementWithIframe, relatedTargetShouldHaveKeyboard } from "./util";
 
 function onKeyboard(element: any) {
   return !!(element as HTMLElement).closest('#keyboard') || element.nodeName === 'FS-OSK'
+}
+
+
+export function fromKeyboard(event: IFocusEvent) {
+  if (event instanceof FocusEvent) {
+    return onKeyboard(event.target)
+  } else {
+    return false
+  }
 }
 
 export function OnscreenKeyboardContainer() {
@@ -13,37 +22,38 @@ export function OnscreenKeyboardContainer() {
   const [targetElement, setTargetElement] = useState<KeyboardElement>(null)
   const standardKeyboardRef = useRef<HTMLDivElement>(null)
   const decimalKeyboardRef = useRef<HTMLDivElement>(null)
+  const focusingOnInputOnKeyboardRef = useRef(false)
 
-  function focusin(event: FocusEvent) {
-    // console.log("focusin", event.target, "relatedTarget:", event.relatedTarget)
-
-    if (isKeyboardElement(event.target) && !onKeyboard(event.target)) {
-      setTargetElement(document.activeElement as KeyboardElement)
-      setKeyboardState(desiredKeyboardState(event.target as KeyboardElement))
+  function focusin(event: IFocusEvent) {
+    if (fromKeyboardElement(event) && !fromKeyboard(event)) {
+      const activeElement = activeElementWithIframe(document) as KeyboardElement
+      setTargetElement(activeElement)
+      setKeyboardState(desiredKeyboardState(activeElement))
     }
   }
 
-  function focusout(event: FocusEvent) {
-    // console.log("focusout", event.target, "relatedTarget:", event.relatedTarget)
-
-    if (!isKeyboardElement(event.relatedTarget)) {
+  function focusout(event: IFocusEvent) {
+    if (!focusingOnInputOnKeyboardRef.current && !relatedTargetShouldHaveKeyboard(event)) {
       setKeyboardState(KeyboardState.None)
     }
   }
 
   useEffect(() => {
     window.addEventListener('focusin', focusin)
+    window.addEventListener('iframe:focusin', focusin)
     window.addEventListener('focusout', focusout)
+    window.addEventListener('iframe:focusout', focusout)
 
     return () => {
       window.removeEventListener('focusin', focusin)
+      window.removeEventListener('iframe:focusin', focusin)
       window.removeEventListener('focusout', focusout)
+      window.removeEventListener('iframe:focusout', focusout)
     }
   }, [])
 
   return <>
     <CSSTransition nodeRef={standardKeyboardRef} in={keyboardState === KeyboardState.Standard} timeout={500} classNames="standard-keyboard" unmountOnExit onExit={() => {
-      console.log('hey')
       const keyboard = standardKeyboardRef.current
       const { top, height } = keyboard.getBoundingClientRect()
       if (top < (window.innerHeight - height)) {
@@ -53,7 +63,10 @@ export function OnscreenKeyboardContainer() {
       <StandardKeyboard ref={standardKeyboardRef} />
     </CSSTransition>
     <CSSTransition nodeRef={decimalKeyboardRef} in={keyboardState === KeyboardState.Decimal} timeout={250} classNames="decimal-keyboard" unmountOnExit>
-      <DecimalKeyboard targetElement={targetElement} ref={decimalKeyboardRef} />
+      <DecimalKeyboard
+        focusingOnInputOnKeyboardRef={focusingOnInputOnKeyboardRef}
+        targetElement={targetElement}
+        ref={decimalKeyboardRef} />
     </CSSTransition>
   </>
 }

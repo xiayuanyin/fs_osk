@@ -12,7 +12,10 @@ if (mode === 'build') {
 }
 
 fs.mkdirSync(outdir, { recursive: true })
-if (mode === 'serve') fs.copyFileSync('./playground/index.html', `${outdir}/index.html`)
+if (mode === 'serve') {
+  fs.copyFileSync('./playground/index.html', `${outdir}/index.html`)
+  fs.copyFileSync('./playground/in_iframe.html', `${outdir}/in_iframe.html`)
+}
 
 esbuild.context({
   bundle: true,
