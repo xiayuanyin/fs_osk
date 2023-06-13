@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "",
   "exports": {
-    ".": "./build/release/index.js",
+    "./dist": "./build/release/index.js",
+    ".": "./src/index.tsx",
     "./main.css": "./build/release/index.css"
   },
   "types": "./build/release/types/index.d.ts",
