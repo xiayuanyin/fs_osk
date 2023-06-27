@@ -7,7 +7,6 @@ let inputValueSetter
 let textAreaValueSetter
 
 if (typeof document != 'undefined') {
-  console.log(typeof document)
   document.addEventListener('DOMContentLoaded', () => {
     inputValueSetter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value").set
     textAreaValueSetter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, "value").set
