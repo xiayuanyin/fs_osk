@@ -3,8 +3,16 @@ import React, { Dispatch, SetStateAction, RefObject, MutableRefObject } from 're
 const REPEATE_INPUT_DELAY = 500 // ms
 const REPEATE_INPUT_INTERVAL = 50 //ms
 
-const inputValueSetter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value").set
-const textAreaValueSetter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, "value").set
+let inputValueSetter
+let textAreaValueSetter
+
+if (typeof document != 'undefined') {
+  console.log(typeof document)
+  document.addEventListener('DOMContentLoaded', () => {
+    inputValueSetter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value").set
+    textAreaValueSetter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, "value").set
+  })
+}
 
 export type KeyboardElement = HTMLInputElement | HTMLTextAreaElement
 export type IFocusEvent = FocusEvent | CustomEvent<IframeEventRedispatchedDetail>
