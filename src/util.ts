@@ -2,6 +2,7 @@ import React, { Dispatch, SetStateAction, RefObject, MutableRefObject } from 're
 
 const REPEAT_INPUT_DELAY = 500 // ms
 const REPEAT_INPUT_INTERVAL = 50 //ms
+const KEYBOARD_INPUT_TYPES = ['text', 'email', 'number', 'password', 'search', 'tel', 'url']
 
 let inputValueSetter: PropertyDescriptor['set']
 let textAreaValueSetter: PropertyDescriptor['set']
@@ -16,17 +17,18 @@ if (typeof document != 'undefined') {
 export type KeyboardElement = HTMLInputElement | HTMLTextAreaElement
 export type IFocusEvent = FocusEvent | CustomEvent<IframeEventRedispatchedDetail>
 
+
 export function isKeyboardElement(element: any) {
-  return element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement || element?.nodeName == 'FS-OSK'
+  return (element instanceof HTMLInputElement && KEYBOARD_INPUT_TYPES.includes(element.type)) || element instanceof HTMLTextAreaElement || element?.nodeName == 'FS-OSK'
 }
 
 export function fromKeyboardElement(event: IFocusEvent) {
   if (event instanceof FocusEvent) {
     return isKeyboardElement(event.target)
   } else {
-    const { tagName } = event.detail
+    const { tagName, type } = event.detail
 
-    return tagName === 'INPUT' || tagName === 'TEXTAREA'
+    return (tagName === 'INPUT' && KEYBOARD_INPUT_TYPES.includes(type)) || tagName === 'TEXTAREA'
   }
 }
 
@@ -34,9 +36,9 @@ export function relatedTargetShouldHaveKeyboard(event: IFocusEvent) {
   if (event instanceof FocusEvent) {
     return isKeyboardElement(event.relatedTarget)
   } else {
-    const { relatedDetail: { tagName } = {} } = event.detail
+    const { relatedDetail: { tagName, type } = {} } = event.detail
 
-    return tagName === 'INPUT' || tagName === 'TEXTAREA'
+    return (tagName === 'INPUT' && KEYBOARD_INPUT_TYPES.includes(type)) || tagName === 'TEXTAREA'
   }
 }
 
