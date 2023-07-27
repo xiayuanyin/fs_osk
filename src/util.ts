@@ -1,10 +1,10 @@
 import React, { Dispatch, SetStateAction, RefObject, MutableRefObject } from 'react'
 
-const REPEATE_INPUT_DELAY = 500 // ms
-const REPEATE_INPUT_INTERVAL = 50 //ms
+const REPEAT_INPUT_DELAY = 500 // ms
+const REPEAT_INPUT_INTERVAL = 50 //ms
 
-let inputValueSetter
-let textAreaValueSetter
+let inputValueSetter: PropertyDescriptor['set']
+let textAreaValueSetter: PropertyDescriptor['set']
 
 if (typeof document != 'undefined') {
   document.addEventListener('DOMContentLoaded', () => {
@@ -156,8 +156,8 @@ export function delayedRepeatInput(timeoutRef: MutableRefObject<number>, interva
     timeoutRef.current = null
     intervalRef.current = setInterval(() => {
       action()
-    }, REPEATE_INPUT_INTERVAL)
-  }, REPEATE_INPUT_DELAY)
+    }, REPEAT_INPUT_INTERVAL)
+  }, REPEAT_INPUT_DELAY)
 
   window.addEventListener('pointerup', () => {
     if (timeoutRef.current) {
@@ -180,7 +180,7 @@ export interface IframeEventRedispatchedDetail {
   relatedDetail?: Omit<IframeEventRedispatchedDetail, 'relatedDetail'>
 }
 
-export function redispatchIframeEvent(iframe: HTMLIFrameElement & { __redispatchers_installed?: boolean }, ...events: (keyof HTMLElementEventMap)[]) {
+export function redispatchIframeEvent(iframe: HTMLIFrameElement, ...events: (keyof HTMLElementEventMap)[]) {
   const reDispatchEvent = (e: Event) => {
     const target = e.target as HTMLInputElement;
 
@@ -210,20 +210,28 @@ export function redispatchIframeEvent(iframe: HTMLIFrameElement & { __redispatch
     iframe.dispatchEvent(newEvent);
   };
 
-  if (!iframe.__redispatchers_installed) {
-    iframe.addEventListener('load', () => {
-      const { contentDocument } = iframe
+  const contentDocument: Document & { __redispatchers_installed?: boolean } = iframe.contentDocument ?? iframe.contentWindow.document
+  if (!contentDocument.__redispatchers_installed) {
+    const addRedispatchListeners = function addRedispatchListeners() {
+      const contentDocument: Document & { __redispatchers_installed?: boolean } = iframe.contentDocument ?? iframe.contentWindow.document
 
       for (const eventName of events) {
         contentDocument.addEventListener(eventName, reDispatchEvent, true)
       }
-    }, { once: true })
 
-    iframe.__redispatchers_installed = true
+      contentDocument.__redispatchers_installed = true
+    }
+
+
+    if (iframe.src === iframe.contentWindow.location.href && contentDocument.readyState  == 'complete') {
+      addRedispatchListeners()
+    } else {
+      iframe.contentWindow.addEventListener('DOMContentLoaded', addRedispatchListeners)
+    }
   }
 
   return () => {
-    const { contentDocument } = iframe
+    const contentDocument: Document & { __redispatchers_installed?: boolean } = iframe.contentDocument ?? iframe.contentWindow.document
 
     for (const eventName of events) {
       contentDocument.removeEventListener(eventName, reDispatchEvent, true)
