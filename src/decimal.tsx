@@ -1,5 +1,5 @@
 import React, { MutableRefObject, forwardRef, useLayoutEffect, useRef, useState } from 'react'
-import { KeyboardElement, KeyboardState, backspace, delayedRepeatInput, desiredKeyboardState, inputCharacterAtCursor, isKeyboardElement } from './util'
+import { KeyboardElement, KeyboardState, activeElementWithIframe, backspace, delayedRepeatInput, desiredKeyboardState, inputCharacterAtCursor, isKeyboardElement } from './util'
 
 function Key(
   { keyname, onPointerDown, isFunctionKey = false }: {
@@ -31,8 +31,15 @@ export const DecimalKeyboard = forwardRef(function DecimalKeyboard(
   useLayoutEffect(() => {
     if (desiredKeyboardState(targetElement) != KeyboardState.Decimal) return
 
-    let { left: elementLeft, bottom: elementBottom } = targetElement.getBoundingClientRect()
+    const {
+      left: elementLeft,
+      right: elementRight,
+      top: elementTop,
+      bottom: elementBottom,
+    } = targetElement.getBoundingClientRect()
     const ownerWindow = targetElement.ownerDocument.defaultView
+
+    let x = elementLeft, y = elementBottom
 
     if (ownerWindow !== window) {
       let iframe: HTMLIFrameElement | undefined = undefined
@@ -46,12 +53,23 @@ export const DecimalKeyboard = forwardRef(function DecimalKeyboard(
       const { left, top } = iframe.getBoundingClientRect()
       const { borderTopWidth, borderLeftWidth } = getComputedStyle(iframe)
 
-      elementLeft += left + parseInt(borderLeftWidth, 10)
-      elementBottom += top + parseInt(borderTopWidth, 10)
+      x += left + parseInt(borderLeftWidth, 10)
+      y += top + parseInt(borderTopWidth, 10)
     }
 
-    setX(elementLeft)
-    setY(elementBottom)
+    const { innerWidth: windowWidth, innerHeight: windowHeight } = window
+    const { width: keyboardWidth, height: keyboardHeight } = keyboardRef.current.getBoundingClientRect()
+
+    if (x + keyboardWidth > windowWidth) {
+      x = windowWidth - keyboardWidth
+    }
+
+    if (y + keyboardHeight > windowHeight) {
+      y = elementTop - keyboardHeight - 3
+    }
+
+    setX(x)
+    setY(y)
 
     inputRef.current.value = targetElement.value
     focusingOnInputOnKeyboardRef.current = true
