@@ -1,5 +1,6 @@
-import React from 'react'
+import React, { useRef } from 'react'
 import { KeyboardMode, KeyCap } from "./keycap"
+import { useKeycapPointerDown } from './util'
 
 export interface KeyProps {
   keycap: KeyCap
@@ -10,6 +11,7 @@ export interface KeyProps {
 export function Key({ keycap, mode, onPointerDown }: KeyProps) {
   let fragment: React.ReactNode
   const { isFunctionKey } = keycap
+  const keycapRef = useRef<HTMLDivElement>(null)
 
   switch (mode) {
     case KeyboardMode.Standard:
@@ -46,9 +48,12 @@ export function Key({ keycap, mode, onPointerDown }: KeyProps) {
       break
   }
 
+  const onPointerDownWrapped = useKeycapPointerDown(onPointerDown, keycapRef);
+
   return (
     <div
-      onPointerDown={onPointerDown}
+      ref={keycapRef}
+      onPointerDown={onPointerDownWrapped}
       className={`keycap ${keycap.isFunctionKey ? "function-key" : "character-key"}`}
       data-keyname={keycap.currentName(mode)}
       data-alternate-keyname={keycap.currentAlternateName(mode)}

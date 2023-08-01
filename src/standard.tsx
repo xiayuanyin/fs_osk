@@ -227,6 +227,7 @@ export const StandardKeyboard = forwardRef<HTMLDivElement>(function StandardKeyb
     <div id="keyboard"
       ref={keyboardRef}
       onPointerDown={(e) => e.target instanceof HTMLInputElement || e.preventDefault()} // 防止在打字时丢失焦点
+      onContextMenu={(e) => { e.stopPropagation(); e.preventDefault() }}
       data-mode={mode}
       style={{ left: `${x}px`, top: `${y}px` }}>
       {KEY_CAPS.map((row, i) => {

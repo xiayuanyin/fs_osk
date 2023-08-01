@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction, RefObject, MutableRefObject } from 'react'
+import React, { Dispatch, SetStateAction, RefObject, MutableRefObject, useCallback } from 'react'
 
 const REPEAT_INPUT_DELAY = 500 // ms
 const REPEAT_INPUT_INTERVAL = 50 //ms
@@ -239,4 +239,25 @@ export function redispatchIframeEvent(iframe: HTMLIFrameElement, ...events: (key
       contentDocument.removeEventListener(eventName, reDispatchEvent, true)
     }
   }
+}
+
+
+export function useKeycapPointerDown<E extends HTMLElement >(
+  onPointerDown: React.PointerEventHandler<E> | undefined,
+  keycapRef: React.RefObject<E>
+): React.PointerEventHandler<E> {
+  return useCallback((e) => {
+    const ret = onPointerDown?.(e)
+    const element = keycapRef.current
+    element.classList.add('touch-active')
+    window.addEventListener('pointerup', () => {
+      keycapRef.current.classList.remove('touch-active')
+    }, { once: true })
+
+    window.addEventListener('pointercancel', () => {
+      keycapRef.current.classList.remove('touch-active')
+    }, { once: true })
+
+    return ret;
+  }, [onPointerDown, keycapRef])
 }
