@@ -119,6 +119,19 @@ export function setInputValue(
   input.dispatchEvent(new Event("input", { bubbles: true, cancelable: true }))
 }
 
+export function setUnselectableInputValue(
+  input: HTMLInputElement | HTMLTextAreaElement,
+  value: string
+) {
+  if (input.tagName === 'INPUT') {
+    inputValueSetter.call(input, value)
+  } else {
+    textAreaValueSetter.call(input, value)
+  }
+
+  input.dispatchEvent(new Event("input", { bubbles: true, cancelable: true }))
+}
+
 function disableFocus(e: FocusEvent) {
   e.stopPropagation()
   e.stopImmediatePropagation()

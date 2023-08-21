@@ -20,6 +20,7 @@ export interface XYSetter {
 }
 export declare function handleMove(event: React.PointerEvent<Element>, { x, y, setX, setY, keyboardRef }: XYSetter): void;
 export declare function setInputValue(input: HTMLInputElement | HTMLTextAreaElement, value: string, selectionStart: number, selectionEnd: number): void;
+export declare function setUnselectableInputValue(input: HTMLInputElement | HTMLTextAreaElement, value: string): void;
 export declare function inputCharacterAtCursor(input: HTMLInputElement | HTMLTextAreaElement, keyname: string, pattern?: RegExp): void;
 export declare function backspace(input: HTMLInputElement | HTMLTextAreaElement): void;
 export declare function delayedRepeatInput(timeoutRef: MutableRefObject<number>, intervalRef: MutableRefObject<number>, action: () => void): void;

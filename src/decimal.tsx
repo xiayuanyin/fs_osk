@@ -1,5 +1,5 @@
 import React, { MutableRefObject, forwardRef, useLayoutEffect, useRef, useState } from 'react'
-import { KeyboardElement, KeyboardState, activeElementWithIframe, backspace, delayedRepeatInput, desiredKeyboardState, inputCharacterAtCursor, isKeyboardElement, setInputValue, useKeycapPointerDown } from './util'
+import { KeyboardElement, KeyboardState, activeElementWithIframe, backspace, delayedRepeatInput, desiredKeyboardState, inputCharacterAtCursor, isKeyboardElement, setInputValue, setUnselectableInputValue, useKeycapPointerDown } from './util'
 
 function Key(
   { keyname, onPointerDown, isFunctionKey = false }: {
@@ -153,7 +153,7 @@ export const DecimalKeyboard = forwardRef(function DecimalKeyboard(
 
     <Key keyname='return' isFunctionKey onPointerDown={() => {
       // targetElement.value = inputRef.current.value
-      setInputValue(targetElement, inputRef.current.value, 0, inputRef.current.value?.length)
+      setUnselectableInputValue(targetElement, inputRef.current.value)
       inputRef.current.blur()
     }} />
 
