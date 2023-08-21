@@ -19,7 +19,7 @@ export type IFocusEvent = FocusEvent | CustomEvent<IframeEventRedispatchedDetail
 
 
 export function isKeyboardElement(element: any) {
-  if (element.readOnly) return false
+  if (element?.readOnly) return false
 
   return (element instanceof HTMLInputElement && KEYBOARD_INPUT_TYPES.includes(element.type)) || element instanceof HTMLTextAreaElement || element?.nodeName == 'FS-OSK'
 }
