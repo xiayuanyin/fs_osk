@@ -121,13 +121,21 @@
             color: gray;
         }
 
-        .alternate.sliding-back, .current.sliding-back {
+        .alternate.sliding-back,
+        .current.sliding-back {
             transition: all .25s ease-in-out;
         }
     }
 
     &.slide-in {
         animation: slide-in .4s ease-in-out;
+    }
+
+    @media screen and (max-width: 1366px) {
+        .keycap {
+            min-height: 45px !important;
+            min-width: 45px !important;
+        }
     }
 
 
@@ -176,7 +184,7 @@
     transform: translateY(0);
     opacity: 1;
     transition: transform var(--decimal-keyboard-transition-duration) var(--decimal-keyboard-easing),
-                opacity var(--decimal-keyboard-transition-duration) var(--decimal-keyboard-easing);
+        opacity var(--decimal-keyboard-transition-duration) var(--decimal-keyboard-easing);
 }
 
 .decimal-keyboard-exit {
@@ -188,7 +196,7 @@
     transform: translateY(var(--decimal-keyboard-translate-y));
     opacity: 0;
     transition: transform var(--decimal-keyboard-transition-duration) var(--decimal-keyboard-easing),
-                    opacity var(--decimal-keyboard-transition-duration) var(--decimal-keyboard-easing);
+        opacity var(--decimal-keyboard-transition-duration) var(--decimal-keyboard-easing);
 }
 
 .standard-keyboard-exit.fade {
