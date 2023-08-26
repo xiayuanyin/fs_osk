@@ -12,5 +12,5 @@
     "target": "es2015",
     "moduleResolution": "nodenext"
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*", "playground/**/*"],
 }

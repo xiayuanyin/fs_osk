@@ -241,7 +241,7 @@ export function redispatchIframeEvent(iframe: HTMLIFrameElement, ...events: (key
     }
 
 
-    if (iframe.src === iframe.contentWindow.location.href && contentDocument.readyState  == 'complete') {
+    if (contentDocument.readyState  == 'complete') {
       addRedispatchListeners()
     } else {
       iframe.contentWindow.addEventListener('DOMContentLoaded', addRedispatchListeners)

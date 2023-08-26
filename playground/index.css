@@ -37,3 +37,15 @@ body {
     right: 0;
     left: auto;
 }
+
+.iframe1 {
+    position: absolute;
+    bottom:0;
+    left: 0;
+}
+
+.iframe2 {
+    position: absolute;
+    bottom:0;
+    right: 0;
+}

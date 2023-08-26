@@ -38,9 +38,9 @@ export const DecimalKeyboard = forwardRef(function DecimalKeyboard(
   useLayoutEffect(() => {
     if (desiredKeyboardState(targetElement) != KeyboardState.Decimal) return
 
-    const {
+    let {
       left: elementLeft,
-      right: elementRight,
+      // right: elementRight,
       top: elementTop,
       bottom: elementBottom,
     } = targetElement.getBoundingClientRect()
@@ -59,9 +59,16 @@ export const DecimalKeyboard = forwardRef(function DecimalKeyboard(
 
       const { left, top } = iframe.getBoundingClientRect()
       const { borderTopWidth, borderLeftWidth } = getComputedStyle(iframe)
+      const offsetX = left + parseInt(borderLeftWidth, 10)
+      const offsetY = top + parseInt(borderTopWidth, 10)
 
-      x += left + parseInt(borderLeftWidth, 10)
-      y += top + parseInt(borderTopWidth, 10)
+      x += offsetX
+      y += offsetY
+
+      elementLeft += offsetX
+      // elementRight += offsetX
+      elementTop += offsetY
+      elementBottom += offsetY
     }
 
     const { innerWidth: windowWidth, innerHeight: windowHeight } = window
