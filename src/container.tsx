@@ -20,9 +20,25 @@ export function fromKeyboard(event: IFocusEvent) {
 export function OnscreenKeyboardContainer() {
   const [keyboardState, setKeyboardState] = useState(KeyboardState.None)
   const [targetElement, setTargetElement] = useState<KeyboardElement>(null)
+  const [standardAlwaysOn, setStandardAlwaysOn] = useState(false)
   const standardKeyboardRef = useRef<HTMLDivElement>(null)
   const decimalKeyboardRef = useRef<HTMLDivElement>(null)
   const focusingOnInputOnKeyboardRef = useRef(false)
+  const standardKeyBoardDisplay = keyboardState === KeyboardState.Standard || (standardAlwaysOn && keyboardState !== KeyboardState.Decimal)
+
+  useEffect(() => {
+    const EVENT_TYPE = 'LOC:osk_set_standard_always_on'
+
+    function onStandardAlwaysOn(e: CustomEvent<{data: boolean}>) {
+      setStandardAlwaysOn(e.detail.data)
+    }
+
+    document.addEventListener(EVENT_TYPE, onStandardAlwaysOn)
+
+    return () => {
+      document.removeEventListener(EVENT_TYPE, onStandardAlwaysOn)
+    }
+  }, [])
 
   function focusin(event: IFocusEvent) {
     if (fromKeyboardElement(event) && !fromKeyboard(event)) {
@@ -53,7 +69,7 @@ export function OnscreenKeyboardContainer() {
   }, [])
 
   return <>
-    <CSSTransition nodeRef={standardKeyboardRef} in={keyboardState === KeyboardState.Standard} timeout={500} classNames="standard-keyboard" unmountOnExit onExit={() => {
+    <CSSTransition nodeRef={standardKeyboardRef} in={standardKeyBoardDisplay} timeout={500} classNames="standard-keyboard" unmountOnExit onExit={() => {
       const keyboard = standardKeyboardRef.current
       const { top, height } = keyboard.getBoundingClientRect()
       if (top < (window.innerHeight - height)) {
