@@ -19,8 +19,12 @@ export function App() {
     }
   }, [])
 
+  const onClick = () => {
+    console.log("outer frame clicked")
+  }
+
   return <>
-    <div id="content">
+    <div id="content" onClick={onClick}>
       <div className='row'>
         <input name="non-controled" id="non-controled" />
         <input name="non-controled-2" id="non-controled-2" data-keyboard-type="decimal" />

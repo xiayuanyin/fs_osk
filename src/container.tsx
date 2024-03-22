@@ -17,6 +17,10 @@ export function fromKeyboard(event: IFocusEvent) {
   }
 }
 
+function preventClickThrough(e: Event) {
+  e.stopPropagation()
+}
+
 export function OnscreenKeyboardContainer() {
   const [keyboardState, setKeyboardState] = useState(KeyboardState.None)
   const [targetElement, setTargetElement] = useState<KeyboardElement>(null)
@@ -45,12 +49,15 @@ export function OnscreenKeyboardContainer() {
       const activeElement = activeElementWithIframe(document) as KeyboardElement
       setTargetElement(activeElement)
       setKeyboardState(desiredKeyboardState(activeElement))
+      event.target.addEventListener('click', preventClickThrough)
     }
+
   }
 
   function focusout(event: IFocusEvent) {
     if (!focusingOnInputOnKeyboardRef.current && !relatedTargetShouldHaveKeyboard(event)) {
       setKeyboardState(KeyboardState.None)
+      event.target.removeEventListener('click', preventClickThrough)
     }
   }
 
