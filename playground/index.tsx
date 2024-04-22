@@ -2,7 +2,6 @@ import { createRoot } from 'react-dom/client'
 import { App } from './App'
 import React, { StrictMode } from 'react'
 import "./index.css"
-import '../src'
 
 // new OnscreenKeyboard().install()
 

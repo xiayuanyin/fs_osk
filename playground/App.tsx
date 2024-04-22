@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react'
 import { useEffect } from 'react'
 import { redispatchIframeEvent } from '../src/util'
+import '../src'
 
 export function App() {
   const iframeRef1 = useRef<HTMLIFrameElement>(null)
@@ -43,6 +44,7 @@ export function App() {
         <input name="non-controled-fixed" type="number" />
         <input id="non-controled-fixed-2" name="non-controled-fixed" type="number" />
       </div>
+      <fs-osk />
     </div>
   </>
 }

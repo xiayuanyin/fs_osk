@@ -3,10 +3,10 @@ import { createRoot, Root } from 'react-dom/client'
 import style from './stylesheets/index.less?loader=text'
 import { OnscreenKeyboardContainer } from './container'
 
-declare module 'React' {
-  const JSX: {
-    IntrinsicElements: {
-      ['fs-osk']: React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      ['fs-osk']: React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
     }
   }
 }
