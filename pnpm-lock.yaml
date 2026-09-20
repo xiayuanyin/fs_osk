@@ -6,7 +6,7 @@ settings:
 
 dependencies:
   esbuild-style-plugin:
-    specifier: git+https://git.foresight-soft.com/npm/esbuild-style-plugin
+    specifier: git+https://github.com/xiayuanyin/esbuild-style-plugin.git
     version: git.foresight-soft.com/npm/esbuild-style-plugin/31a60bc3dcc236a78553b036ebfc1e7a59afbf2c
   react:
     specifier: ^18.2.0
@@ -2167,7 +2167,7 @@ packages:
     dev: true
 
   git.foresight-soft.com/npm/esbuild-style-plugin/31a60bc3dcc236a78553b036ebfc1e7a59afbf2c:
-    resolution: {commit: 31a60bc3dcc236a78553b036ebfc1e7a59afbf2c, repo: https://git.foresight-soft.com/npm/esbuild-style-plugin, type: git}
+    resolution: {commit: 31a60bc3dcc236a78553b036ebfc1e7a59afbf2c, repo: https://github.com/xiayuanyin/esbuild-style-plugin.git, type: git}
     name: esbuild-style-plugin
     version: 1.0.0
     dependencies:
